@@ -1,11 +1,16 @@
 import cv2
 from ultralytics import YOLO
 import supervision as sv
+import torch
 
-video = cv2.VideoCapture('Videos\BeijingIntersection.mp4')
+video = cv2.VideoCapture('Videos\cars.mp4')
 # load the model
-model = YOLO("yolov8n.pt")
+model = YOLO("yolov8m.pt")
 bbox_annotator = sv.BoxAnnotator()
+
+# check torch using GPU
+print(torch.cuda.is_available())
+
 
 while True:
     ret, frame = video.read()
@@ -13,7 +18,7 @@ while True:
     frame = cv2.resize(frame, (360, 240))
     results = model(frame)[0]
     detection = sv.Detections.from_ultralytics(results)
-    detection = detection[detection.confidence > 0.8]
+    detection = detection[detection.confidence > 0.5]
     labels = [
         results.names[class_id]
         for class_id in detection.class_id
