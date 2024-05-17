@@ -3,7 +3,7 @@ from ultralytics import YOLO
 import supervision as sv
 import torch
 
-video = cv2.VideoCapture('Videos\cars.mp4')
+video = cv2.VideoCapture(0)
 # load the model
 model = YOLO("yolov8m.pt")
 bbox_annotator = sv.BoxAnnotator()
@@ -11,11 +11,17 @@ bbox_annotator = sv.BoxAnnotator()
 # check torch using GPU
 print(torch.cuda.is_available())
 
-
 while True:
     ret, frame = video.read()
     # resize frame
-    frame = cv2.resize(frame, (360, 240))
+    # if not ret:
+    #     print("Can't receive frame (stream end?). Exiting ...")
+    #     break
+
+    # # resize frame
+    frame = cv2.resize(frame, (480, 480))
+
+
     results = model(frame)[0]
     detection = sv.Detections.from_ultralytics(results)
     detection = detection[detection.confidence > 0.5]
